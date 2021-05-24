@@ -1,7 +1,6 @@
 package br.com.bandtec.apifaculdade.classes;
 
 import br.com.bandtec.apifaculdade.entity.Aluno;
-import br.com.bandtec.apifaculdade.model.AlunoSimplesResposta;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -11,13 +10,13 @@ import java.util.List;
 
 public class Importar {
 
-    public static List<AlunoSimplesResposta> leArquivo(String nomeArq) {
-        List<AlunoSimplesResposta> listaRegistros = new ArrayList<>();
+    public static List<Aluno> leArquivo(String nomeArq) {
+        List<Aluno> listaRegistros = new ArrayList<>();
 
         BufferedReader entrada = null;
         String registro;
         String tipoRegistro;
-        String curso, ra, nomeAluno;
+        String ra, nomeAluno, curso;
         int contRegistro=0;
 
         // Abre o arquivo
@@ -63,17 +62,16 @@ public class Importar {
 
                     ra = registro.substring(2,8);
                     nomeAluno = registro.substring(8,33);
-                    curso = registro.substring(33, 43);
+                    curso = registro.substring(33,43);
 
-                    Aluno aluno = new Aluno();
-                    AlunoSimplesResposta novoAluno = new AlunoSimplesResposta(aluno);
+                    Aluno novoAluno = new Aluno();
                     novoAluno.setRa(ra);
                     novoAluno.setNome(nomeAluno);
-                    novoAluno.setNomeCurso(curso);
+                    novoAluno.setCurso(curso);
 
                     listaRegistros.add(novoAluno);
 
-                    System.out.printf("%-8s %-25s %-10s\n", ra, nomeAluno, curso);
+                    System.out.printf("%-8s %-25s %-10s\n", ra, nomeAluno);
                     contRegistro++;
                 }
                 else {

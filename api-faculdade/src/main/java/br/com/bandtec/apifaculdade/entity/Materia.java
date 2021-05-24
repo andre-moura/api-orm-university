@@ -18,9 +18,6 @@ public class Materia {
     @NotBlank
     private String professor;
 
-    @ManyToOne
-    private CursoMateria cursoMateria;
-
     /*Metodos*/
     public Integer getId() {
         return id;
@@ -44,13 +41,5 @@ public class Materia {
 
     public void setProfessor(String professor) {
         this.professor = professor;
-    }
-
-    public CursoMateria getCursoMateria() {
-        return cursoMateria;
-    }
-
-    public void setCursoMateria(CursoMateria cursoMateria) {
-        this.cursoMateria = cursoMateria;
     }
 }

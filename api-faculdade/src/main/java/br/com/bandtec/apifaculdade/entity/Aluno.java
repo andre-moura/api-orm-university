@@ -19,13 +19,13 @@ public class Aluno {
     @NotBlank
     private String nome;
 
+    @NotBlank
+    private String curso;
+
     private boolean boletoIsPago = false;
 
     @Column(nullable = true)
     private String codigoBoleto;
-
-    @ManyToOne
-    private Curso curso;
 
     /*Metodos*/
     public Integer getId() {
@@ -52,6 +52,14 @@ public class Aluno {
         this.nome = nome;
     }
 
+    public String getCurso() {
+        return curso;
+    }
+
+    public void setCurso(String curso) {
+        this.curso = curso;
+    }
+
     public boolean isBoletoIsPago() {
         return boletoIsPago;
     }
@@ -66,13 +74,5 @@ public class Aluno {
 
     public void setCodigoBoleto(String codigoBoleto) {
         this.codigoBoleto = codigoBoleto;
-    }
-
-    public Curso getCurso() {
-        return curso;
-    }
-
-    public void setCurso(Curso curso) {
-        this.curso = curso;
     }
 }

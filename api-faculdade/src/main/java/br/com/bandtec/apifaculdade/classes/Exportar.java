@@ -1,6 +1,6 @@
 package br.com.bandtec.apifaculdade.classes;
 
-import br.com.bandtec.apifaculdade.model.AlunoSimplesResposta;
+import br.com.bandtec.apifaculdade.entity.Aluno;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -42,13 +42,13 @@ public class Exportar {
         gravarRegistro(nomeArq, header);
     }
 
-    public static void gerarCorpoAluno(String nomeArq, AlunoSimplesResposta aluno) {
+    public static void gerarCorpoAluno(String nomeArq, Aluno aluno) {
         String corpo = "";
 
         corpo += "01";
         corpo += String.format("%-8s", aluno.getRa());
         corpo += String.format("%-25s", aluno.getNome());
-        corpo += String.format("%-10s", aluno.getNomeCurso());
+        corpo += String.format("%-10s", aluno.getCurso());
 
         countRegistros++;
 

@@ -2,13 +2,10 @@ package br.com.bandtec.apifaculdade.controller;
 
 import br.com.bandtec.apifaculdade.classes.Exportar;
 import br.com.bandtec.apifaculdade.classes.Importar;
+import br.com.bandtec.apifaculdade.classes.PilhaObj;
 import br.com.bandtec.apifaculdade.entity.Aluno;
-import br.com.bandtec.apifaculdade.entity.Curso;
-import br.com.bandtec.apifaculdade.entity.Materia;
-import br.com.bandtec.apifaculdade.model.AlunoSimplesResposta;
+import br.com.bandtec.apifaculdade.entity.AlunoMateria;
 import br.com.bandtec.apifaculdade.repository.AlunoRepository;
-import br.com.bandtec.apifaculdade.repository.CursoRepository;
-import br.com.bandtec.apifaculdade.repository.MateriaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +15,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/alunos")
@@ -27,12 +23,7 @@ public class AlunoController {
     @Autowired
     private AlunoRepository alunoRepository;
 
-    @Autowired
-    private CursoRepository cursoRepository;
-
-    @Autowired
-    private MateriaRepository materiaRepository;
-
+    private PilhaObj<Aluno> alunosDeletados = new PilhaObj<>(5);
 
     @PutMapping("/emitir-boleto/{id}")
     public ResponseEntity emitirBoleto(@PathVariable Integer id){
@@ -101,30 +92,31 @@ public class AlunoController {
     }
     @GetMapping("/exportar-alunos/{nomeArq}")
     public ResponseEntity exportarArquivoAlunos(@PathVariable String nomeArq){
-        List<AlunoSimplesResposta> alunoSimplesRespostas = alunoRepository
-                .findAll()
-                .stream()
-                .map(AlunoSimplesResposta::new)
-                .collect(Collectors.toList());
+        List<Aluno> alunos = alunoRepository.findAll();
 
-        for (int i = 0; i < alunoSimplesRespostas.size(); i++) {
+        if (!alunos.isEmpty()){
             Exportar.gerarHeader(nomeArq);
-            Exportar.gerarCorpoAluno(nomeArq, alunoSimplesRespostas.get(i));
+            for (int i = 0; i < alunos.size(); i++) {
+                Exportar.gerarCorpoAluno(nomeArq, alunos.get(i));
+            }
             Exportar.gerarTrailer(nomeArq);
+            return ResponseEntity.status(200).build();
+        } else {
+            return ResponseEntity.status(400).build();
         }
-        return ResponseEntity.status(200).build();
     }
 
     @PostMapping("/importar-alunos/{nomeArq}")
     public ResponseEntity importarArquivoAlunos(@PathVariable String nomeArq){
-        List<AlunoSimplesResposta> listaAlunos = Importar.leArquivo(nomeArq);
+        List<Aluno> listaAlunos = Importar.leArquivo(nomeArq);
+
         if (!listaAlunos.isEmpty()){
             for (int i = 0; i < listaAlunos.size(); i++) {
                 Aluno novoAluno = new Aluno();
                 novoAluno.setNome(listaAlunos.get(i).getNome());
                 novoAluno.setRa(listaAlunos.get(i).getRa());
-                Curso curso = cursoRepository.findCursoByNome(listaAlunos.get(i).getNomeCurso());
-                novoAluno.setCurso(curso);
+                novoAluno.setNome(listaAlunos.get(i).getNome());
+
                 alunoRepository.save(novoAluno);
             }
             return ResponseEntity.status(201).build();
@@ -133,33 +125,52 @@ public class AlunoController {
         }
     }
 
-    @GetMapping("/media/{idUsuario}")
-    public ResponseEntity getMedia(@PathVariable Integer idUsuario){
-        Optional<Aluno> aluno = alunoRepository.findById(idUsuario);
-        if (aluno.isPresent()){
+    @GetMapping("/media/{id}")
+    public ResponseEntity getMedia(@PathVariable Integer id){
+        Optional<AlunoMateria> alunoMateria = Optional.ofNullable(alunoRepository.acharNotasPeloId(id));
 
+        if (alunoMateria.isPresent()){
             double[] vetorNota = {
-                    aluno.get().getCurso().getCursoMateria().getNota1(),
-                    aluno.get().getCurso().getCursoMateria().getNota2(),
-                    aluno.get().getCurso().getCursoMateria().getNota3(),
-                    aluno.get().getCurso().getCursoMateria().getNota4()
+                    alunoMateria.get().getNota1(),
+                    alunoMateria.get().getNota2(),
+                    alunoMateria.get().getNota3(),
+                    alunoMateria.get().getNota4()
             };
-
             return ResponseEntity.status(200)
-                    .body("Media do aluno " + aluno.get().getNome()+" na materia "+
-                            aluno.get().getCurso().getCursoMateria().getMateria()+" é " +
+                    .body("Media do aluno " + alunoMateria.get().getAluno().getNome()+" na materia "+
+                            alunoMateria.get().getMateria()+" é " +
                             mediaRecursiva(vetorNota, 4));
         } else {
             return ResponseEntity.status(400).build();
         }
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity deleteAluno(@PathVariable Integer id){
+        Optional<Aluno> aluno = alunoRepository.findById(id);
+        if (aluno.isPresent()){
+            alunosDeletados.push(aluno.get());
+            alunoRepository.deleteById(id);
+            return ResponseEntity.status(200).build();
+        } else {
+            return ResponseEntity.status(400).build();
+        }
+    }
+
+    @PostMapping("/restaurar-aluno/{id}")
+    public ResponseEntity restaurarAluno(@PathVariable Integer id){
+        alunoRepository.save(alunosDeletados.pop());
+        return ResponseEntity.status(200).body("Aluno restaurado com sucesso!");
+    }
+
+    // Dá um "ctr + z" de até 5 vezes
     @PostMapping
     public ResponseEntity postAluno(@RequestBody @Valid Aluno novoAluno){
         alunoRepository.save(novoAluno);
         return ResponseEntity.status(201).build();
     }
 
+    // Calcula a média de forma recursiva
     public static Double mediaRecursiva(double[] notas, int posicao){
         if (posicao == 0){
             return 0.0;
