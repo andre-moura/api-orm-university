@@ -1,6 +1,9 @@
 package br.com.bandtec.apifaculdade.entity;
 
+import org.hibernate.validator.constraints.Length;
+
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 
 @Entity
 public class Aluno {
@@ -10,9 +13,16 @@ public class Aluno {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Length(min = 8, max = 8)
     private String ra;
 
+    @NotBlank
     private String nome;
+
+    private boolean boletoIsPago = false;
+
+    @Column(nullable = true)
+    private String codigoBoleto;
 
     @ManyToOne
     private Curso curso;
@@ -40,6 +50,22 @@ public class Aluno {
 
     public void setNome(String nome) {
         this.nome = nome;
+    }
+
+    public boolean isBoletoIsPago() {
+        return boletoIsPago;
+    }
+
+    public void setBoletoIsPago(boolean boletoIsPago) {
+        this.boletoIsPago = boletoIsPago;
+    }
+
+    public String getCodigoBoleto() {
+        return codigoBoleto;
+    }
+
+    public void setCodigoBoleto(String codigoBoleto) {
+        this.codigoBoleto = codigoBoleto;
     }
 
     public Curso getCurso() {

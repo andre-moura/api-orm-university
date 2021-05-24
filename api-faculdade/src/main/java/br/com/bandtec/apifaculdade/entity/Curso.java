@@ -1,6 +1,7 @@
 package br.com.bandtec.apifaculdade.entity;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 
 @Entity
 public class Curso {
@@ -10,14 +11,14 @@ public class Curso {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @NotBlank
     private String nome;
 
+    @NotBlank
     private String professorCoordenador;
 
-    private boolean boletoIsPago = false;
-
     @ManyToOne
-    private MateriaCurso materiaCurso;
+    private CursoMateria cursoMateria;
 
     /*Metodos*/
     public Integer getId() {
@@ -44,19 +45,11 @@ public class Curso {
         this.professorCoordenador = professorCoordenador;
     }
 
-    public boolean isBoletoIsPago() {
-        return boletoIsPago;
+    public CursoMateria getCursoMateria() {
+        return cursoMateria;
     }
 
-    public void setBoletoIsPago(boolean boletoIsPago) {
-        this.boletoIsPago = boletoIsPago;
-    }
-
-    public MateriaCurso getMateriaCurso() {
-        return materiaCurso;
-    }
-
-    public void setMateriaCurso(MateriaCurso materiaCurso) {
-        this.materiaCurso = materiaCurso;
+    public void setCursoMateria(CursoMateria cursoMateria) {
+        this.cursoMateria = cursoMateria;
     }
 }
