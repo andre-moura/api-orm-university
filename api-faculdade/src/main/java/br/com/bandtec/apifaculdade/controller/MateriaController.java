@@ -1,5 +1,6 @@
 package br.com.bandtec.apifaculdade.controller;
 
+import br.com.bandtec.apifaculdade.classes.Exportar;
 import br.com.bandtec.apifaculdade.entity.Materia;
 import br.com.bandtec.apifaculdade.repository.MateriaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,7 @@ public class MateriaController {
     }
 
     @GetMapping
-    public ResponseEntity getCursos() {
+    public ResponseEntity getMaterias() {
         List<Materia> materias = materiaRepository.findAll();
 
         if (!materias.isEmpty()) {
@@ -35,11 +36,27 @@ public class MateriaController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity getCurso(@PathVariable Integer id){
+    public ResponseEntity getMateria(@PathVariable Integer id){
         Optional<Materia> materia = materiaRepository.findById(id);
 
         if (materia.isPresent()){
             return ResponseEntity.status(200).body(materia);
+        } else {
+            return ResponseEntity.status(400).build();
+        }
+    }
+
+    @GetMapping("/exportar-materias/{nomeArq}")
+    public ResponseEntity exportarMaterias(@PathVariable String nomeArq){
+        List<Materia> materias = materiaRepository.findAll();
+
+        if (!materias.isEmpty()){
+            Exportar.gerarHeader(nomeArq);
+            for (int i = 0; i < materias.size(); i++) {
+                Exportar.gerarCorpoMateria(nomeArq, materias.get(i));
+            }
+            Exportar.gerarTrailer(nomeArq);
+            return ResponseEntity.status(200).build();
         } else {
             return ResponseEntity.status(400).build();
         }

@@ -1,7 +1,7 @@
 package br.com.bandtec.apifaculdade.controller;
 
 import br.com.bandtec.apifaculdade.classes.Exportar;
-import br.com.bandtec.apifaculdade.classes.Importar;
+import br.com.bandtec.apifaculdade.classes.FilaObj;
 import br.com.bandtec.apifaculdade.classes.PilhaObj;
 import br.com.bandtec.apifaculdade.entity.Aluno;
 import br.com.bandtec.apifaculdade.entity.AlunoMateria;
@@ -25,36 +25,43 @@ public class AlunoController {
 
     private PilhaObj<Aluno> alunosDeletados = new PilhaObj<>(5);
 
+    private FilaObj<Aluno> filaEmicaoBoleto = new FilaObj<>(5);
+
     @PutMapping("/emitir-boleto/{id}")
     public ResponseEntity emitirBoleto(@PathVariable Integer id){
 
-        // Aqui eu coloco um UID aleatório como o codigo do boleto
-        String codigoBoleto = UUID.randomUUID().toString();
+        Optional<Aluno> aluno = alunoRepository.findById(id);
+        if (aluno.isPresent()){
+            // Adiciona o usuário a fila de requisições de boleto
+            filaEmicaoBoleto.insert(aluno.get());
 
-        // Aqui e o prazo limite para pagar o boleto, na vida real seria maior
-        LocalDateTime prazoValidade = LocalDateTime.now().plusSeconds(20);
+            // Aqui eu coloco um UID aleatório como o codigo do boleto
+            String codigoBoleto = UUID.randomUUID().toString();
 
-        Thread sorteadorCodigo = new Thread(() -> {
-            try {
-                Thread.sleep(10000);
+            // Aqui e o prazo limite para pagar o boleto, na vida real seria maior
+            LocalDateTime prazoValidade = LocalDateTime.now().plusSeconds(20);
 
-                Optional<Aluno> aluno = alunoRepository.findById(id);
+            Thread sorteadorCodigo = new Thread(() -> {
+                try {
 
-                if (aluno.isPresent()){
+                    Thread.sleep(10000);
                     aluno.get().setCodigoBoleto(codigoBoleto);
                     alunoRepository.save(aluno.get());
+
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
+            });
 
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        });
-        sorteadorCodigo.start();
+            sorteadorCodigo.start();
 
-        return ResponseEntity.status(202)
-                .header("codigo-boleto", codigoBoleto)
-                .header("prazo", prazoValidade.toString())
-                .build();
+            return ResponseEntity.status(202)
+                    .header("codigo-boleto", codigoBoleto)
+                    .header("prazo", prazoValidade.toString())
+                    .build();
+        } else {
+            return ResponseEntity.status(400).build();
+        }
     }
 
     @PutMapping("/pagar-boleto/{codigo}")
@@ -63,6 +70,8 @@ public class AlunoController {
 
         if (aluno.isPresent()){
             aluno.get().setBoletoIsPago(true);
+            // Com o boleto pago é retirado o aluno da fila de requisição de boletos
+            filaEmicaoBoleto.poll();
             return ResponseEntity.status(200).body("Seu boleto foi pago!");
         } else {
             return ResponseEntity.status(400).build();
@@ -106,28 +115,9 @@ public class AlunoController {
         }
     }
 
-    @PostMapping("/importar-alunos/{nomeArq}")
-    public ResponseEntity importarArquivoAlunos(@PathVariable String nomeArq){
-        List<Aluno> listaAlunos = Importar.leArquivo(nomeArq);
-
-        if (!listaAlunos.isEmpty()){
-            for (int i = 0; i < listaAlunos.size(); i++) {
-                Aluno novoAluno = new Aluno();
-                novoAluno.setNome(listaAlunos.get(i).getNome());
-                novoAluno.setRa(listaAlunos.get(i).getRa());
-                novoAluno.setNome(listaAlunos.get(i).getNome());
-
-                alunoRepository.save(novoAluno);
-            }
-            return ResponseEntity.status(201).build();
-        } else {
-            return ResponseEntity.status(400).build();
-        }
-    }
-
-    @GetMapping("/media/{id}")
-    public ResponseEntity getMedia(@PathVariable Integer id){
-        Optional<AlunoMateria> alunoMateria = Optional.ofNullable(alunoRepository.acharNotasPeloId(id));
+    @GetMapping("/media/{id}/{idMateria}")
+    public ResponseEntity getMedia(@PathVariable Integer id, @PathVariable Integer idMateria){
+        Optional<AlunoMateria> alunoMateria = Optional.ofNullable(alunoRepository.acharNotasPeloId(id, idMateria));
 
         if (alunoMateria.isPresent()){
             double[] vetorNota = {

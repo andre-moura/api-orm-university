@@ -10,6 +10,6 @@ public interface AlunoRepository extends JpaRepository<Aluno, Integer> {
 
     Aluno findAlunoByCodigoBoleto(String codigo);
 
-    @Query("from AlunoMateria where aluno = ?1")
-    AlunoMateria acharNotasPeloId(Integer id);
+    @Query("from AlunoMateria where aluno = ?1 and materia = ?2")
+    AlunoMateria acharNotasPeloId(Integer id, Integer idMateria);
 }
