@@ -4,13 +4,14 @@ import br.com.bandtec.apifaculdade.entity.Aluno;
 import br.com.bandtec.apifaculdade.repository.AlunoRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.ResponseEntity;
 
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.Arrays;
+import java.util.List;
 
 @SpringBootTest
 class AlunoControllerTest {
@@ -18,60 +19,22 @@ class AlunoControllerTest {
     @Autowired
     private AlunoController alunoController;
 
-    @Autowired
+    @MockBean
     private AlunoRepository alunoRepository;
-
-    // 1° Metodo
-    /* 1° Cenario - Não vai conseguir emitir boleto, pois usuário é inexistente,
-    logo emitirá status code 400*/
-    @Test
-    void emitirBoleto(){
-        ResponseEntity resposta = alunoController.emitirBoleto(1);
-        Assertions.assertEquals(400, resposta.getStatusCodeValue());
-    }
-
-    /* 2° Cenario - Emição do boleto bem sucedidada, pois o usuário foi cadastrado antes
-    deverá emitir o 202, pois está em promise*/
-    @Test
-    void emitirBoletoSucesso() {
-        postAlunoSucesso();
-        ResponseEntity resposta = alunoController.emitirBoleto(1);
-        Assertions.assertEquals(202, resposta.getStatusCodeValue());
-    }
-
-    // 2° Metodo
-    /* 1° Cenario - Não vai conseguir emitir boleto, pois usuário é inexistente,
-    logo emitirá status code 400*/
-    @Test
-    void pagarBoleto() {
-    }
-
-    /* 1° Cenario - Não vai conseguir emitir boleto, pois usuário é inexistente,
-    logo emitirá status code 400*/
-    @Test
-    void pagarBoletoSucesso() {
-    }
 
     // 3° Metodo
     /* 1° Cenario - Vai dar status code 400 pois não conseguirá pagar o boleto
     de um código inexistente*/
     @Test
     void getAlunos() {
-        postAlunoSucesso();
-        ResponseEntity resposta = alunoController.pagarBoleto("Olá mundo!");
-        Assertions.assertEquals(400, resposta.getStatusCodeValue());
+
     }
 
     /* 2° Cenario - Vai dar status code 200 pois conseguirá pagar o boleto
     de um alunop e um codigo existente*/
     @Test
     void getAlunoSucesso() {
-        postAlunoSucesso();
 
-        ResponseEntity resposta = alunoController.pagarBoleto
-                (alunoRepository.findById(1).get().getCodigoBoleto());
-
-        Assertions.assertEquals(200, resposta.getStatusCodeValue());
     }
 
     // 4° Metodo
@@ -84,7 +47,9 @@ class AlunoControllerTest {
     Pois o aluno foi exportado anteriormente*/
     @Test
     void exportarArquivoAlunosSucesso() {
-        postAlunoSucesso();
+        List<Aluno> alunoTeste = Arrays.asList(new Aluno(), new Aluno(), new Aluno());
+        Mockito.when(alunoRepository.findAll()).thenReturn(alunoTeste);
+
         ResponseEntity resposta = alunoController.exportarArquivoAlunos("ArquivoAlunoTeste");
         Assertions.assertEquals(200, resposta.getStatusCodeValue());
     }

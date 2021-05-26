@@ -22,10 +22,8 @@ public class Aluno {
     @NotBlank
     private String curso;
 
-    private boolean boletoIsPago = false;
-
     @Column(nullable = true)
-    private String codigoBoleto;
+    private String caixaDeEntrada;
 
     /*Metodos*/
     public Integer getId() {
@@ -60,19 +58,11 @@ public class Aluno {
         this.curso = curso;
     }
 
-    public boolean isBoletoIsPago() {
-        return boletoIsPago;
+    public String getCaixaDeEntrada() {
+        return caixaDeEntrada;
     }
 
-    public void setBoletoIsPago(boolean boletoIsPago) {
-        this.boletoIsPago = boletoIsPago;
-    }
-
-    public String getCodigoBoleto() {
-        return codigoBoleto;
-    }
-
-    public void setCodigoBoleto(String codigoBoleto) {
-        this.codigoBoleto = codigoBoleto;
+    public void setCaixaDeEntrada(String caixaDeEntrada) {
+        this.caixaDeEntrada = caixaDeEntrada;
     }
 }

@@ -25,40 +25,37 @@ public class MateriaController {
     }
 
     @GetMapping
-    public ResponseEntity getMaterias() {
+    public ResponseEntity<List<Materia>> getMaterias() {
         List<Materia> materias = materiaRepository.findAll();
 
         if (!materias.isEmpty()) {
             return ResponseEntity.status(200).body(materias);
         } else {
-            return ResponseEntity.status(400).build();
+            return ResponseEntity.status(204).build();
         }
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity getMateria(@PathVariable Integer id){
+    public ResponseEntity<Materia> getMateria(@PathVariable Integer id){
         Optional<Materia> materia = materiaRepository.findById(id);
 
-        if (materia.isPresent()){
-            return ResponseEntity.status(200).body(materia);
-        } else {
-            return ResponseEntity.status(400).build();
-        }
+        return materia.map(value -> ResponseEntity.status(200).body(value)).orElseGet(() ->
+                ResponseEntity.status(204).build());
     }
 
     @GetMapping("/exportar-materias/{nomeArq}")
-    public ResponseEntity exportarMaterias(@PathVariable String nomeArq){
+    public ResponseEntity<List<Materia>> exportarMaterias(@PathVariable String nomeArq){
         List<Materia> materias = materiaRepository.findAll();
 
         if (!materias.isEmpty()){
             Exportar.gerarHeader(nomeArq);
-            for (int i = 0; i < materias.size(); i++) {
-                Exportar.gerarCorpoMateria(nomeArq, materias.get(i));
+            for (Materia materia : materias) {
+                Exportar.gerarCorpoMateria(nomeArq, materia);
             }
             Exportar.gerarTrailer(nomeArq);
             return ResponseEntity.status(200).build();
         } else {
-            return ResponseEntity.status(400).build();
+            return ResponseEntity.status(204).build();
         }
     }
 }

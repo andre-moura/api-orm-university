@@ -1,20 +1,18 @@
 package br.com.bandtec.apifaculdade.controller;
 
 import br.com.bandtec.apifaculdade.classes.Exportar;
-import br.com.bandtec.apifaculdade.classes.FilaObj;
 import br.com.bandtec.apifaculdade.classes.PilhaObj;
 import br.com.bandtec.apifaculdade.entity.Aluno;
 import br.com.bandtec.apifaculdade.entity.AlunoMateria;
+import br.com.bandtec.apifaculdade.repository.AlunoMateriaRepository;
 import br.com.bandtec.apifaculdade.repository.AlunoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/alunos")
@@ -23,82 +21,31 @@ public class AlunoController {
     @Autowired
     private AlunoRepository alunoRepository;
 
+    @Autowired
+    private AlunoMateriaRepository alunoMateriaRepository;
+
     private PilhaObj<Aluno> alunosDeletados = new PilhaObj<>(5);
 
-    private FilaObj<Aluno> filaEmicaoBoleto = new FilaObj<>(5);
-
-    @PutMapping("/emitir-boleto/{id}")
-    public ResponseEntity emitirBoleto(@PathVariable Integer id){
-
-        Optional<Aluno> aluno = alunoRepository.findById(id);
-        if (aluno.isPresent()){
-            // Adiciona o usuário a fila de requisições de boleto
-            filaEmicaoBoleto.insert(aluno.get());
-
-            // Aqui eu coloco um UID aleatório como o codigo do boleto
-            String codigoBoleto = UUID.randomUUID().toString();
-
-            // Aqui e o prazo limite para pagar o boleto, na vida real seria maior
-            LocalDateTime prazoValidade = LocalDateTime.now().plusSeconds(20);
-
-            Thread sorteadorCodigo = new Thread(() -> {
-                try {
-
-                    Thread.sleep(10000);
-                    aluno.get().setCodigoBoleto(codigoBoleto);
-                    alunoRepository.save(aluno.get());
-
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            });
-
-            sorteadorCodigo.start();
-
-            return ResponseEntity.status(202)
-                    .header("codigo-boleto", codigoBoleto)
-                    .header("prazo", prazoValidade.toString())
-                    .build();
-        } else {
-            return ResponseEntity.status(400).build();
-        }
-    }
-
-    @PutMapping("/pagar-boleto/{codigo}")
-    public ResponseEntity pagarBoleto(@PathVariable String codigo){
-        Optional<Aluno> aluno = Optional.ofNullable(alunoRepository.findAlunoByCodigoBoleto(codigo));
-
-        if (aluno.isPresent()){
-            aluno.get().setBoletoIsPago(true);
-            // Com o boleto pago é retirado o aluno da fila de requisição de boletos
-            filaEmicaoBoleto.poll();
-            return ResponseEntity.status(200).body("Seu boleto foi pago!");
-        } else {
-            return ResponseEntity.status(400).build();
-        }
-    }
-
     @GetMapping
-    public ResponseEntity getAlunos() {
+    public ResponseEntity<List<Aluno>> getAlunos() {
         List<Aluno> alunos = alunoRepository.findAll();
 
         if (!alunos.isEmpty()) {
             return ResponseEntity.status(200).body(alunos);
         } else {
-            return ResponseEntity.status(400).build();
+            return ResponseEntity.status(204).build();
         }
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity getAluno(@PathVariable Integer id){
+    public ResponseEntity<Aluno> getAluno(@PathVariable Integer id){
         Optional<Aluno> aluno = alunoRepository.findById(id);
 
-        if (aluno.isPresent()){
-            return ResponseEntity.status(200).body(aluno);
-        } else {
-            return ResponseEntity.status(400).build();
-        }
+        return aluno.map(value ->
+                ResponseEntity.status(200).body(value)).orElseGet(() ->
+                ResponseEntity.status(204).build());
     }
+
     @GetMapping("/exportar-alunos/{nomeArq}")
     public ResponseEntity exportarArquivoAlunos(@PathVariable String nomeArq){
         List<Aluno> alunos = alunoRepository.findAll();
@@ -111,13 +58,39 @@ public class AlunoController {
             Exportar.gerarTrailer(nomeArq);
             return ResponseEntity.status(200).build();
         } else {
-            return ResponseEntity.status(400).build();
+            return ResponseEntity.status(204).build();
+        }
+    }
+
+    @PutMapping("/lancar-notas/{idUsuario}/{idMateria}")
+    public ResponseEntity lancarNotas(@PathVariable Integer idUsuario,
+                                      @PathVariable Integer idMateria,
+                                      @RequestBody AlunoMateria alunoMateria){
+
+        Optional<AlunoMateria> alunoMateriaProcurado;
+
+        alunoMateriaProcurado = Optional.ofNullable(alunoRepository.acharNotasPeloId
+                (idUsuario, idMateria));
+
+        if (alunoMateriaProcurado.isPresent()){
+
+            alunoMateriaProcurado.get().setNota1(alunoMateria.getNota1());
+            alunoMateriaProcurado.get().setNota2(alunoMateria.getNota2());
+            alunoMateriaProcurado.get().setNota3(alunoMateria.getNota3());
+            alunoMateriaProcurado.get().setNota4(alunoMateria.getNota4());
+
+            alunoMateriaRepository.save(alunoMateriaProcurado.get());
+            return ResponseEntity.status(200).build();
+        } else {
+            return ResponseEntity.status(204).build();
         }
     }
 
     @GetMapping("/media/{id}/{idMateria}")
-    public ResponseEntity getMedia(@PathVariable Integer id, @PathVariable Integer idMateria){
-        Optional<AlunoMateria> alunoMateria = Optional.ofNullable(alunoRepository.acharNotasPeloId(id, idMateria));
+    public ResponseEntity<String> getMedia(@PathVariable Integer id,
+                                   @PathVariable Integer idMateria){
+        Optional<AlunoMateria> alunoMateria;
+        alunoMateria = Optional.ofNullable(alunoRepository.acharNotasPeloId(id, idMateria));
 
         if (alunoMateria.isPresent()){
             double[] vetorNota = {
@@ -131,7 +104,7 @@ public class AlunoController {
                             alunoMateria.get().getMateria()+" é " +
                             mediaRecursiva(vetorNota, 4));
         } else {
-            return ResponseEntity.status(400).build();
+            return ResponseEntity.status(204).body("Notas não lançadas ainda!");
         }
     }
 
@@ -143,12 +116,12 @@ public class AlunoController {
             alunoRepository.deleteById(id);
             return ResponseEntity.status(200).build();
         } else {
-            return ResponseEntity.status(400).build();
+            return ResponseEntity.status(204).build();
         }
     }
 
-    @PostMapping("/restaurar-aluno/{id}")
-    public ResponseEntity restaurarAluno(@PathVariable Integer id){
+    @PostMapping("/restaurar-aluno")
+    public ResponseEntity<String> restaurarAluno(){
         alunoRepository.save(alunosDeletados.pop());
         return ResponseEntity.status(200).body("Aluno restaurado com sucesso!");
     }
