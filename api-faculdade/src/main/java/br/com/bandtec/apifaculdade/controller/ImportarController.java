@@ -6,7 +6,7 @@ import br.com.bandtec.apifaculdade.repository.AlunoRepository;
 import br.com.bandtec.apifaculdade.repository.MateriaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -24,7 +24,7 @@ public class ImportarController {
     @Autowired
     private AlunoRepository alunoRepository;
 
-    @GetMapping("/{nomeArq}")
+    @PostMapping("/{nomeArq}")
     public ResponseEntity importarArquivo(String nomeArq) {
 
         BufferedReader entrada = null;

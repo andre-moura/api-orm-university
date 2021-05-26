@@ -44,28 +44,33 @@ public class Exportar {
     }
 
     public static void gerarCorpoAluno(String nomeArq, Aluno aluno) {
-        String corpo = "";
+        if (aluno.getId() != null) {
+            String corpo = "";
 
-        corpo += "01";
-        corpo += String.format("%-10s", aluno.getRa());
-        corpo += String.format("%-25s", aluno.getNome());
-        corpo += String.format("%-10s", aluno.getCurso());
+            corpo += "01";
+            corpo += String.format("%-10s", aluno.getRa());
+            corpo += String.format("%-25s", aluno.getNome());
+            corpo += String.format("%-10s", aluno.getCurso());
 
-        countRegistros++;
+            countRegistros++;
 
-        gravarRegistro(nomeArq, corpo);
+            gravarRegistro(nomeArq, corpo);
+        }
     }
 
     public static void gerarCorpoMateria(String nomeArq, Materia materia) {
-        String corpo = "";
+        if (materia.getId() != null) {
+            String corpo = "";
 
-        corpo += "02";
-        corpo += String.format("%-8s", materia.getNome());
-        corpo += String.format("%-25s", materia.getProfessor());
+            corpo += "02";
+            corpo += String.format("%-8s", materia.getNome());
+            corpo += String.format("%-25s", materia.getProfessor());
 
-        countRegistros++;
+            countRegistros++;
 
-        gravarRegistro(nomeArq, corpo);
+            gravarRegistro(nomeArq, corpo);
+        }
+
     }
 
     public static void gerarTrailer(String nomeArq){

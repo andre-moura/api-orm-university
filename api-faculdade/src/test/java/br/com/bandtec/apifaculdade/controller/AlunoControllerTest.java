@@ -1,7 +1,6 @@
 package br.com.bandtec.apifaculdade.controller;
 
 import br.com.bandtec.apifaculdade.entity.Aluno;
-import br.com.bandtec.apifaculdade.entity.AlunoMateria;
 import br.com.bandtec.apifaculdade.repository.AlunoRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -14,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -85,98 +85,45 @@ class AlunoControllerTest {
         Assertions.assertEquals(204, responseEntity.getStatusCodeValue());
     }
 
-    // 5° Metodo
+    // 3° Metodo
     @Test
+    @DisplayName("GET /alunos/exportar/{nomeArq} - Quando houver registros, status 200")
     void exportarArquivoAlunosSucesso() {
-
-    }
-
-    @Test
-    void exportarArquivoAlunosErro() {
-
-    }
-
-    // 6° Metodo
-    @Test
-    @DisplayName("PUT /lancar-notas/{idAluno}/{idMateria} - Quando houver registros, status 200")
-    void lancarNotasSucesso() {
         // Given
-        int idAlunoTeste = 1;
-        int idMateriaTeste = 1;
-        AlunoMateria alunoMateriaTeste = new AlunoMateria();
+        Aluno alunoTeste = new Aluno();
+        alunoTeste.setId(1);
+        alunoTeste.setRa("02201002");
+        alunoTeste.setNome("André Moura");
+        alunoTeste.setCurso("3CCOA");
+
+        List<Aluno> listaAlunos = new ArrayList<Aluno>();
+        listaAlunos.add(alunoTeste);
 
         // When
-        Mockito.when(alunoRepository.acharNotasPeloId(idAlunoTeste, idMateriaTeste)).thenReturn(alunoMateriaTeste);
-
-        ResponseEntity resposta = alunoController.lancarNotas(
-                idAlunoTeste,
-                idMateriaTeste,
-                alunoMateriaTeste);
+        Mockito.when(alunoRepository.findAll()).thenReturn(listaAlunos);
+        ResponseEntity resposta = alunoController.exportarArquivoAlunos("ArquivoAlunoTeste");
 
         // Then
         Assertions.assertEquals(200, resposta.getStatusCodeValue());
     }
 
     @Test
-    @DisplayName("PUT /lancar-notas/{idAluno}/{idMateria} - Quando não houver registros, status 204")
-    void lancarNotasSemRegistro() {
+    @DisplayName("GET /alunos/exportar/{nomeArq} - Quando não houver registros, status 204")
+    void exportarArquivoAlunosSemRegistro() {
         // Given
-        int idAlunoTeste = 1;
-        int idMateriaTeste = 1;
-        AlunoMateria alunoMateriaTeste = new AlunoMateria();
+        List<Aluno> alunosTeste = Collections.emptyList();
 
         // When
-        ResponseEntity resposta = alunoController.lancarNotas(
-                idAlunoTeste,
-                idMateriaTeste,
-                alunoMateriaTeste);
+        Mockito.when(alunoRepository.findAll()).thenReturn(alunosTeste);
+        ResponseEntity resposta = alunoController.exportarArquivoAlunos("ArquivoAlunoTeste");
 
         // Then
         Assertions.assertEquals(204, resposta.getStatusCodeValue());
     }
 
-    // 7° Metodo
+    // 4° Metodo
     @Test
-    @DisplayName("GET /media/{idAluno}/{idMateria} - Quando houver registros, status 200")
-    void getMediaSucesso() {
-        // Given
-        int idAlunoTeste = 1;
-        int idMateriaTeste = 1;
-        AlunoMateria alunoMateriaTeste = new AlunoMateria();
-
-        alunoMateriaTeste.setNota1(10.0);
-        alunoMateriaTeste.setNota2(8.0);
-        alunoMateriaTeste.setNota3(9.0);
-        alunoMateriaTeste.setNota4(8.0);
-
-        // When
-        Mockito.when(alunoRepository.acharNotasPeloId(idAlunoTeste, idMateriaTeste))
-                .thenReturn(alunoMateriaTeste);
-
-        ResponseEntity responseEntity = alunoController.getMedia(idAlunoTeste, idMateriaTeste);
-
-        // Then
-        Assertions.assertEquals(200, responseEntity.getStatusCodeValue());
-        Assertions.assertEquals(8.75, responseEntity.getBody());
-    }
-
-    @Test
-    @DisplayName("GET /media/{idAluno}/{idMateria} - Quando não houver registros nem nota, status 204")
-    void getMediaSemNota() {
-        // Given
-        int idAlunoTeste = 1;
-        int idMateriaTeste = 1;
-
-        // When
-        ResponseEntity responseEntity = alunoController.getMedia(idAlunoTeste, idMateriaTeste);
-
-        // Then
-        Assertions.assertEquals(204, responseEntity.getStatusCodeValue());
-    }
-
-    // 8° Metodo
-    @Test
-    @DisplayName("DELETE /{id} - Quando houver registros nem nota, status 200")
+    @DisplayName("DELETE /alunos/{id} - Quando houver registros nem nota, status 200")
     void deleteAlunoSucesso() {
         // Given
         Aluno alunoTeste = new Aluno();
@@ -193,31 +140,70 @@ class AlunoControllerTest {
     }
 
     @Test
-    @DisplayName("DELETE /{id} - Quando não houver registro, status 204")
-    void deleteAlunoSemAluno() {
+    @DisplayName("DELETE /alunos/{id} - Quando não houver registro, status 204")
+    void deleteAlunoSemAlunoStatus() {
         // Given
-        int idAluno = 1;
+        int idAlunoTeste = 1;
 
         // When
-        Mockito.when(alunoRepository.existsById(idAluno)).
+        Mockito.when(alunoRepository.existsById(idAlunoTeste)).
                 thenReturn(true);
 
-        ResponseEntity responseEntity = alunoController.deleteAluno(idAluno);
+        ResponseEntity responseEntity = alunoController.deleteAluno(idAlunoTeste);
 
         // Then
         Assertions.assertEquals(204, responseEntity.getStatusCodeValue());
     }
 
-    // 9° Metodo
+    // 5° Metodo
     @Test
-    void restaurarAluno() {
+    @DisplayName("POST /alunos/restaurar - Quando não houver registro, mensagem")
+    void restaurarAlunoSemAlunoBody() {
+        // Given
+
+        // When
+        ResponseEntity resposta = alunoController.restaurarAluno();
+
+        // Then
+        Assertions.assertEquals("Aluno não encontrado!", resposta.getBody());
     }
 
     @Test
-    void postAluno() {
+    @DisplayName("POST /alunos/restaurar - Quando não houver registros dentro da fila, status 204")
+    void restaurarAlunoErro() {
+        // Given
+
+        // When
+        ResponseEntity resposta = alunoController.restaurarAluno();
+
+        // Then
+        Assertions.assertEquals(204, resposta.getStatusCodeValue());
+    }
+
+    // 6° Metodo
+    @Test
+    @DisplayName("POST /alunos - Quando tudo estiver preenchido corretamente , status 201")
+    void postAlunoSucesso() {
+        // Given
+        Aluno alunoTeste = new Aluno();
+
+        // When
+        ResponseEntity resposta = alunoController.postAluno(alunoTeste);
+
+        // Then
+        Assertions.assertEquals(201, resposta.getStatusCodeValue());
     }
 
     @Test
-    void mediaRecursiva() {
+    @DisplayName("POST /alunos  - Quando estiver preenchido certo, mensagem")
+    void postAlunoErro() {
+        // Given
+        Aluno alunoTeste = new Aluno();
+
+        // When
+        ResponseEntity resposta = alunoController.postAluno(alunoTeste);
+
+        // Then
+        Assertions.assertEquals( "Aluno cadastrado com sucesso!", resposta.getBody());
     }
 }

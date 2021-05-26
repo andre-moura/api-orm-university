@@ -21,7 +21,7 @@ public class MateriaController {
     @PostMapping
     public ResponseEntity postMateria(@RequestBody @Valid Materia novaMateria){
         materiaRepository.save(novaMateria);
-        return ResponseEntity.status(201).build();
+        return ResponseEntity.status(201).body("Materia cadastrada com sucesso!");
     }
 
     @GetMapping
@@ -43,7 +43,7 @@ public class MateriaController {
                 ResponseEntity.status(204).build());
     }
 
-    @GetMapping("/exportar-materias/{nomeArq}")
+    @GetMapping("/exportar/{nomeArq}")
     public ResponseEntity<List<Materia>> exportarMaterias(@PathVariable String nomeArq){
         List<Materia> materias = materiaRepository.findAll();
 

@@ -11,5 +11,4 @@ public interface BoletoRepository extends JpaRepository<Boleto, Integer> {
 
     @Query("from Boleto where aluno.id = ?1 and ano = ?2 and mes = ?3")
     Boleto acharBoletoPorAlunoData(Integer id, int ano, int mes);
-
 }

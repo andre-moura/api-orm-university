@@ -1,6 +1,6 @@
 package br.com.bandtec.apifaculdade.controller;
 
-import br.com.bandtec.apifaculdade.agendamento.AgendamentoAvisos;
+import br.com.bandtec.apifaculdade.scheduler.AgendamentoAvisos;
 import br.com.bandtec.apifaculdade.entity.Aluno;
 import br.com.bandtec.apifaculdade.entity.Boleto;
 import br.com.bandtec.apifaculdade.repository.AlunoRepository;
@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -29,8 +30,8 @@ public class BoletoController {
     @Autowired
     private AgendamentoAvisos agendamentoAvisos;
 
-    @PostMapping("/emitir-boleto/{idAluno}")
-    public ResponseEntity<String> emitirBoleto(@PathVariable Integer idAluno){
+    @PostMapping("/emitir/{idAluno}")
+    public ResponseEntity<String> emitirBoleto(@PathVariable @Valid  Integer idAluno){
 
         Optional<Aluno> aluno = alunoRepository.findById(idAluno);
         if (aluno.isPresent()){
@@ -82,7 +83,7 @@ public class BoletoController {
         }
     }
 
-    @PutMapping("/pagar-boleto/{codigo}")
+    @PutMapping("/pagar/{codigo}")
     public ResponseEntity<String> pagarBoleto(@PathVariable String codigo){
         Optional<Boleto> boleto = Optional.ofNullable(boletoRepository.acharBoletoPorCodigo(codigo));
 
