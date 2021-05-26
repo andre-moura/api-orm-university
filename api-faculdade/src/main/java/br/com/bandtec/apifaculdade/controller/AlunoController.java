@@ -62,15 +62,15 @@ public class AlunoController {
         }
     }
 
-    @PutMapping("/lancar-notas/{idUsuario}/{idMateria}")
-    public ResponseEntity lancarNotas(@PathVariable Integer idUsuario,
+    @PutMapping("/lancar-notas/{idAluno}/{idMateria}")
+    public ResponseEntity lancarNotas(@PathVariable Integer idAluno,
                                       @PathVariable Integer idMateria,
                                       @RequestBody AlunoMateria alunoMateria){
 
         Optional<AlunoMateria> alunoMateriaProcurado;
 
         alunoMateriaProcurado = Optional.ofNullable(alunoRepository.acharNotasPeloId
-                (idUsuario, idMateria));
+                (idAluno, idMateria));
 
         if (alunoMateriaProcurado.isPresent()){
 
@@ -86,11 +86,11 @@ public class AlunoController {
         }
     }
 
-    @GetMapping("/media/{id}/{idMateria}")
-    public ResponseEntity<String> getMedia(@PathVariable Integer id,
-                                   @PathVariable Integer idMateria){
+    @GetMapping("/media/{idAluno}/{idMateria}")
+    public ResponseEntity getMedia(@PathVariable Integer idAluno,
+                                           @PathVariable Integer idMateria){
         Optional<AlunoMateria> alunoMateria;
-        alunoMateria = Optional.ofNullable(alunoRepository.acharNotasPeloId(id, idMateria));
+        alunoMateria = Optional.ofNullable(alunoRepository.acharNotasPeloId(idAluno, idMateria));
 
         if (alunoMateria.isPresent()){
             double[] vetorNota = {
@@ -100,9 +100,7 @@ public class AlunoController {
                     alunoMateria.get().getNota4()
             };
             return ResponseEntity.status(200)
-                    .body("Media do aluno " + alunoMateria.get().getAluno().getNome()+" na materia "+
-                            alunoMateria.get().getMateria()+" é " +
-                            mediaRecursiva(vetorNota, 4));
+                    .body(mediaRecursiva(vetorNota, 4));
         } else {
             return ResponseEntity.status(204).body("Notas não lançadas ainda!");
         }

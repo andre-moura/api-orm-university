@@ -16,7 +16,8 @@ public class AgendamentoAvisos {
     private FilaObj<Aluno> filaEmicaoBoleto = new FilaObj<>(60);
     private FilaObj<Aluno> aux = new FilaObj<>(60);
 
-    @Scheduled(fixedRate = 10000, initialDelay = 3000)
+    // Todos os dias do mês as 21:30:00 será enviado a mensagem, a não ser que pague o boleto!
+    @Scheduled(fixedRate = 3000, initialDelay = 3000)
     public void cobrarPagamentoBoleto(){
         if (!filaEmicaoBoleto.isEmpty()){
             for (int i = 0; i < filaEmicaoBoleto.size(); i++) {
