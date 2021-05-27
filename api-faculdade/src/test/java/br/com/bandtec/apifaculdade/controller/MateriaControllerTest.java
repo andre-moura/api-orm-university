@@ -119,7 +119,7 @@ class MateriaControllerTest {
     // 4° Metodo
     @Test
     @DisplayName("GET /materias/exportar/{nomeArq} - Quando encontrar registros, status 200")
-    void exportarMateriasSucesso() {
+    void exportarMateriasExistentes() {
         // Given
         Materia materiaTeste = new Materia();
         materiaTeste.setId(1);

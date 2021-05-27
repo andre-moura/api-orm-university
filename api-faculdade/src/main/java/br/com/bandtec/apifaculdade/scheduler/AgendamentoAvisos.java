@@ -26,6 +26,7 @@ public class AgendamentoAvisos {
                 aux.insert(alunoEnviadoMensagem);
 
                 alunoEnviadoMensagem.setCaixaDeEntrada("Você tem um boleto para pagar!");
+                System.out.println(alunoEnviadoMensagem.getCaixaDeEntrada());
 
                 // Volta para a fila
                 filaEmicaoBoleto.insert(alunoEnviadoMensagem);

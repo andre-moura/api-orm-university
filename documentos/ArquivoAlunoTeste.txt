@@ -1,0 +1,7 @@
+00FACULDADE202126-05-2021 17:48:3400
+0102201001  André Moura             CCOA
+0102201002  Jorge Silva             CCOA
+0102201003  José Marcos             CCOA
+0102201004  Maria Santo             CCOA
+0102201005  Ruana Silva             CCOA
+030000000005

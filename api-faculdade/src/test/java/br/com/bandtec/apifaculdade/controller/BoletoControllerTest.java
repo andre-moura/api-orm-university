@@ -127,7 +127,7 @@ class BoletoControllerTest {
 
     @Test
     @DisplayName("GET /boletos - Quando não achar boleto, status 204")
-    void getBoletosErro() {
+    void getBoletosSemBoletos() {
         // Given
         List<Boleto> boletosTeste = Collections.emptyList();
 

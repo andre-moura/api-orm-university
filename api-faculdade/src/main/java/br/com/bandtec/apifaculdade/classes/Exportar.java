@@ -17,7 +17,7 @@ public class Exportar {
         BufferedWriter saida = null;
 
         try {
-            saida = new BufferedWriter(new FileWriter(nomeArq, true));
+            saida = new BufferedWriter(new FileWriter(nomeArq+".txt", true));
         } catch (IOException ex) {
             System.out.println("Erro na abertura do arquivo: %s. \n "+ ex.getMessage());
         }

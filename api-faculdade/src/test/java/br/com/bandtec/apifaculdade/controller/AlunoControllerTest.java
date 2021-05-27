@@ -157,27 +157,31 @@ class AlunoControllerTest {
 
     // 5° Metodo
     @Test
-    @DisplayName("POST /alunos/restaurar - Quando não houver registro, mensagem")
+    @DisplayName("POST /alunos/restaurar - Quando houver registro, mensagem")
     void restaurarAlunoSemAlunoBody() {
         // Given
+        Aluno alunoTeste = new Aluno();
+        alunoController.getAlunosDeletados().push(alunoTeste);
 
         // When
         ResponseEntity resposta = alunoController.restaurarAluno();
 
         // Then
-        Assertions.assertEquals("Aluno não encontrado!", resposta.getBody());
+        Assertions.assertEquals("Aluno restaurado com sucesso!", resposta.getBody());
     }
 
     @Test
-    @DisplayName("POST /alunos/restaurar - Quando não houver registros dentro da fila, status 204")
+    @DisplayName("POST /alunos/restaurar - Quando houver registros dentro da fila, status 201")
     void restaurarAlunoErro() {
         // Given
+        Aluno alunoTeste = new Aluno();
+        alunoController.getAlunosDeletados().push(alunoTeste);
 
         // When
         ResponseEntity resposta = alunoController.restaurarAluno();
 
         // Then
-        Assertions.assertEquals(204, resposta.getStatusCodeValue());
+        Assertions.assertEquals(201, resposta.getStatusCodeValue());
     }
 
     // 6° Metodo
