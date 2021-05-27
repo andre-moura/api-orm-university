@@ -1,6 +1,8 @@
 package br.com.bandtec.apifaculdade.controller;
 
+import br.com.bandtec.apifaculdade.entity.Aluno;
 import br.com.bandtec.apifaculdade.entity.AlunoMateria;
+import br.com.bandtec.apifaculdade.entity.Materia;
 import br.com.bandtec.apifaculdade.repository.AlunoMateriaRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -64,9 +66,18 @@ class AlunoMateriaControllerTest {
     @DisplayName("GET /alunos-materias/media/{idAluno}/{idMateria} - Quando houver registros, status 200")
     void getMediaSucesso() {
         // Given
-        int idAlunoTeste = 1;
-        int idMateriaTeste = 1;
+        Aluno alunoTeste = new Aluno();
+        Materia materiaTeste = new Materia();
+
+        alunoTeste.setId(1);
+        alunoTeste.setNome("André Moura da Silva");
+        materiaTeste.setId(1);
+        materiaTeste.setNome("PWEB");
+
         AlunoMateria alunoMateriaTeste = new AlunoMateria();
+
+        alunoMateriaTeste.setAluno(alunoTeste);
+        alunoMateriaTeste.setMateria(materiaTeste);
 
         alunoMateriaTeste.setNota1(10.0);
         alunoMateriaTeste.setNota2(8.0);
@@ -74,14 +85,17 @@ class AlunoMateriaControllerTest {
         alunoMateriaTeste.setNota4(8.0);
 
         // When
-        Mockito.when(alunoMateriaRepository.acharNotasPeloId(idAlunoTeste, idMateriaTeste))
+        Mockito.when(alunoMateriaRepository.acharNotasPeloId(alunoTeste.getId(), materiaTeste.getId()))
                 .thenReturn(alunoMateriaTeste);
 
-        ResponseEntity responseEntity = alunoMateriaController.getMedia(idAlunoTeste, idMateriaTeste);
+        ResponseEntity responseEntity = alunoMateriaController.getMedia(alunoTeste.getId(), materiaTeste.getId());
 
         // Then
         Assertions.assertEquals(200, responseEntity.getStatusCodeValue());
-        Assertions.assertEquals(8.75, responseEntity.getBody());
+        Assertions.assertEquals("Media do aluno "+
+                alunoMateriaTeste.getAluno().getNome()+ " em " +
+                alunoMateriaTeste.getMateria().getNome() +": " +
+                8.75, responseEntity.getBody());
     }
 
     @Test

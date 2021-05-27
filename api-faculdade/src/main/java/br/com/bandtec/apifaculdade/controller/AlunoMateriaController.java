@@ -53,7 +53,11 @@ public class AlunoMateriaController {
                     alunoMateria.get().getNota4()
             };
             return ResponseEntity.status(200)
-                    .body(mediaRecursiva(vetorNota, 4));
+                    .body("Media do aluno "+
+                            alunoMateria.get().getAluno().getNome()+ " em " +
+                            alunoMateria.get().getMateria().getNome() +": " +
+                            mediaRecursiva(vetorNota, 4)
+                    );
         } else {
             return ResponseEntity.status(204).body("Notas não lançadas ainda!");
         }
