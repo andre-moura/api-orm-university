@@ -25,6 +25,7 @@ public class MateriaController {
         return ResponseEntity.status(201).body("Materia cadastrada com sucesso!");
     }
 
+    // Retorna todas materias cadastradas
     @GetMapping
     public ResponseEntity<List<Materia>> getMaterias() {
         List<Materia> materias = materiaRepository.findAll();
@@ -36,6 +37,7 @@ public class MateriaController {
         }
     }
 
+    // Pega uma materia pelo ID
     @GetMapping("/{id}")
     public ResponseEntity<Materia> getMateria(@PathVariable Integer id){
         Optional<Materia> materia = materiaRepository.findById(id);
@@ -44,6 +46,7 @@ public class MateriaController {
                 ResponseEntity.status(204).build());
     }
 
+    // Recebe um parametro e utiliza ele como nome para exportar um arquivo com todas materias
     @GetMapping("/exportar/{nomeArq}")
     public ResponseEntity<List<Materia>> exportarMaterias(@PathVariable String nomeArq){
         List<Materia> materias = materiaRepository.findAll();

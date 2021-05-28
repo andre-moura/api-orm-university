@@ -11,8 +11,10 @@ import java.util.Date;
 
 public class Exportar {
 
+    // Conta quantos registros tem no arquivo
     static int countRegistros = 0;
 
+    // Cria o arquivo e grava os registros nele
     public static  void gravarRegistro(String nomeArq, String registro){
         BufferedWriter saida = null;
 
@@ -30,6 +32,7 @@ public class Exportar {
         }
     }
 
+    // Cria um Header para o arquivo
     public  static void gerarHeader(String nomeArq) {
         String header = "";
 
@@ -43,6 +46,7 @@ public class Exportar {
         gravarRegistro(nomeArq, header);
     }
 
+    // Gera um corpo para o arquivo utilizando Alunos
     public static void gerarCorpoAluno(String nomeArq, Aluno aluno) {
         if (aluno.getId() != null) {
             String corpo = "";
@@ -58,6 +62,7 @@ public class Exportar {
         }
     }
 
+    // Gera o corpo para o arquivo utilizando Materias
     public static void gerarCorpoMateria(String nomeArq, Materia materia) {
         if (materia.getId() != null) {
             String corpo = "";
@@ -73,6 +78,7 @@ public class Exportar {
 
     }
 
+    // Gera um Trailer para o arquivo para fins de controle
     public static void gerarTrailer(String nomeArq){
         String trailer = "";
 

@@ -35,10 +35,12 @@ public class AgendamentoAvisos {
         }
     }
 
+    // Get para pegar a fila de pagamentos dos boletos
     public FilaObj<Aluno> getFilaPagamentosBoletos() {
         return filaPagamentosBoletos;
     }
 
+    // Set para mudar a fila de pagamentos dos boletos
     public void setFilaPagamentosBoletos(FilaObj<Aluno> filaPagamentosBoletos) {
         this.filaPagamentosBoletos = filaPagamentosBoletos;
     }
