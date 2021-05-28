@@ -46,7 +46,7 @@ public class Exportar {
         gravarRegistro(nomeArq, header);
     }
 
-    // Gera um corpo para o arquivo utilizando Alunos
+    // Gera um corpo para o arquivo utilizando objetos Alunos vindos do banco
     public static void gerarCorpoAluno(String nomeArq, Aluno aluno) {
         if (aluno.getId() != null) {
             String corpo = "";
