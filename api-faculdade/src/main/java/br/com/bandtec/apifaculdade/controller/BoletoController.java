@@ -30,15 +30,17 @@ public class BoletoController {
     @Autowired
     private AgendamentoAvisos agendamentoAvisos;
 
+    // Emite um boleto e vincula esse boleto ao aluno utilizando seu ID
     @PostMapping("/emitir/{idAluno}")
-    public ResponseEntity<String> emitirBoleto(@PathVariable @Valid  Integer idAluno){
+    public ResponseEntity emitirBoleto(@PathVariable @Valid  Integer idAluno){
 
         Optional<Aluno> aluno = alunoRepository.findById(idAluno);
+
         if (aluno.isPresent()){
 
-            /* Uma vez o boleto emitido o aluno vai para a lista de avisos, onde será avisado
-            a ele que ele tem um boleto para pagar*/
-            agendamentoAvisos.getFilaEmicaoBoleto().insert(aluno.get());
+            // Aluno vai para uma fila, aonde receberá notificações ao não pagar o boleto
+            // O ID do usuário será o ID usado para a requisição
+            agendamentoAvisos.getFilaPagamentosBoletos().insert(aluno.get());
 
             LocalDate dataBoleto = LocalDate.now();
 
@@ -46,12 +48,16 @@ public class BoletoController {
                     (idAluno, dataBoleto.getYear(), dataBoleto.getMonthValue()));
 
             if (!boleto.isPresent()){
+
+                // Cria um UUID que será o código do boleto
                 String codigoBoleto = UUID.randomUUID().toString();
 
                 LocalDateTime prazoValidade = LocalDateTime.now().plusSeconds(20);
 
                 Thread sorteadorCodigo = new Thread(() -> {
                     try {
+
+                        // Cria o boleto após 10 segundo e vincula ao aluno
                         Thread.sleep(10000);
 
                         Boleto novoBoleto = new Boleto();
@@ -73,7 +79,7 @@ public class BoletoController {
                 return ResponseEntity.status(202)
                         .header("codigo-boleto", codigoBoleto)
                         .header("prazo", prazoValidade.toString())
-                        .build();
+                        .body("ID da requisição: " + aluno.get().getId());
             } else {
                 return ResponseEntity.status(400).body("Boleto desse ano e mês já foi emitido!");
             }
@@ -83,15 +89,17 @@ public class BoletoController {
         }
     }
 
+    /* Recebe o codigo do boleto que será pago, muda o status do boleto para pago
+     e Retira o Aluno da lista de cobrança caso tenha pago com sucesso*/
     @PutMapping("/pagar/{codigo}")
-    public ResponseEntity<String> pagarBoleto(@PathVariable String codigo){
+    public ResponseEntity<String> pagarBoleto(@PathVariable @Valid String codigo){
         Optional<Boleto> boleto = Optional.ofNullable(boletoRepository.acharBoletoPorCodigo(codigo));
 
         if (boleto.isPresent()){
             boleto.get().setBoletoIsPago(true);
 
             // Uma vez o boleto pago, o aluno sairá da fila e deixará de receber o aviso
-            agendamentoAvisos.getFilaEmicaoBoleto().poll();
+            agendamentoAvisos.getFilaPagamentosBoletos().poll();
 
             return ResponseEntity.status(200).body("Seu boleto foi pago!");
         } else {
@@ -99,6 +107,7 @@ public class BoletoController {
         }
     }
 
+    // Retorna todos os boletos existentes
     @GetMapping
     public ResponseEntity<List<Boleto>> getBoletos(){
         List<Boleto> boletos = boletoRepository.findAll();

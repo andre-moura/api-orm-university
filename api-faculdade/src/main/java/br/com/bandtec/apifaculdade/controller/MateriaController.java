@@ -18,6 +18,7 @@ public class MateriaController {
     @Autowired
     private MateriaRepository materiaRepository;
 
+    // Cadastra uma materia nova
     @PostMapping
     public ResponseEntity postMateria(@RequestBody @Valid Materia novaMateria){
         materiaRepository.save(novaMateria);

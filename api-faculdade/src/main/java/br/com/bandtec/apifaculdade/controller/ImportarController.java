@@ -29,9 +29,11 @@ public class ImportarController {
     @Autowired
     private AlunoRepository alunoRepository;
 
+    // Importa um arquivo, podendo colocar 1 corpo de Materias, Alunos, ou ambos
     @PostMapping
     public ResponseEntity importarArquivo(@RequestParam MultipartFile arquivo) throws IOException{
 
+        // Se o arquivo não está vazio, prepara o ambiente para importação
         if (!arquivo.isEmpty()) {
             byte[] conteudo = arquivo.getBytes();
 

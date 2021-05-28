@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.Optional;
 
 @RestController
@@ -15,10 +16,11 @@ public class AlunoMateriaController {
     @Autowired
     private AlunoMateriaRepository alunoMateriaRepository;
 
+    // Lança notas para os alunos em determinadas materias usando os respectivos IDs
     @PutMapping("/lancar-notas/{idAluno}/{idMateria}")
     public ResponseEntity lancarNotas(@PathVariable Integer idAluno,
                                       @PathVariable Integer idMateria,
-                                      @RequestBody AlunoMateria alunoMateria){
+                                      @RequestBody @Valid AlunoMateria alunoMateria){
 
         Optional<AlunoMateria> alunoMateriaProcurado;
 
@@ -39,11 +41,13 @@ public class AlunoMateriaController {
         }
     }
 
+    // Pega as médias dos alunos em determinadas materias usando os respectivos IDs
     @GetMapping("/media/{idAluno}/{idMateria}")
     public ResponseEntity getMedia(@PathVariable Integer idAluno,
                                    @PathVariable Integer idMateria){
         Optional<AlunoMateria> alunoMateria;
-        alunoMateria = Optional.ofNullable(alunoMateriaRepository.acharNotasPeloId(idAluno, idMateria));
+        alunoMateria = Optional.ofNullable
+                (alunoMateriaRepository.acharNotasPeloId(idAluno, idMateria));
 
         if (alunoMateria.isPresent()){
             double[] vetorNota = {

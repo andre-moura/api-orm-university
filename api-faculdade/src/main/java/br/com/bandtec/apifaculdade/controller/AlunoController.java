@@ -25,6 +25,7 @@ public class AlunoController {
 
     private PilhaObj<Aluno> alunosDeletados = new PilhaObj<>(5);
 
+    // Pega todos os alunos cadastrados
     @GetMapping
     public ResponseEntity<List<Aluno>> getAlunos() {
         List<Aluno> alunos = alunoRepository.findAll();
@@ -36,6 +37,7 @@ public class AlunoController {
         }
     }
 
+    // Pega um aluno pelo id
     @GetMapping("/{id}")
     public ResponseEntity<Aluno> getAluno(@PathVariable Integer id){
         Optional<Aluno> aluno = alunoRepository.findById(id);
@@ -45,6 +47,7 @@ public class AlunoController {
                 ResponseEntity.status(204).build());
     }
 
+    // Recebe um parametro e exporta um arquivo com alunos usando esse parametro como nome
     @GetMapping("/exportar/{nomeArq}")
     public ResponseEntity exportarArquivoAlunos(@PathVariable String nomeArq){
         List<Aluno> alunos = alunoRepository.findAll();
@@ -61,6 +64,7 @@ public class AlunoController {
         }
     }
 
+    // Deleta um aluno pelo ID e joga o aluno dentro de uma pilha
     @DeleteMapping("/{id}")
     public ResponseEntity deleteAluno(@PathVariable Integer id){
         Optional<Aluno> aluno = alunoRepository.findById(id);
@@ -73,6 +77,7 @@ public class AlunoController {
         }
     }
 
+    // Restaura o aluno deletado utilizando a pilha, dando assim um "ctrl + z"
     @PostMapping("/restaurar")
     public ResponseEntity<String> restaurarAluno(){
         if (!alunosDeletados.isEmpty()){
@@ -83,13 +88,14 @@ public class AlunoController {
         }
     }
 
-    // Dá um "ctr + z" de até 5 vezes
+    // Recebe um corpo de requisição e cadastra um aluno
     @PostMapping
     public ResponseEntity postAluno(@RequestBody @Valid Aluno novoAluno){
         alunoRepository.save(novoAluno);
         return ResponseEntity.status(201).body("Aluno cadastrado com sucesso!");
     }
 
+    // Get usado para pegar a pilha com alunos deletados
     public PilhaObj<Aluno> getAlunosDeletados() {
         return alunosDeletados;
     }

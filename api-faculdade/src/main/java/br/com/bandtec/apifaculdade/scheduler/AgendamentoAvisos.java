@@ -13,32 +13,33 @@ public class AgendamentoAvisos {
     @Autowired
     private AlunoRepository alunoRepository;
 
-    private FilaObj<Aluno> filaEmicaoBoleto = new FilaObj<>(60);
+    private FilaObj<Aluno> filaPagamentosBoletos = new FilaObj<>(60);
     private FilaObj<Aluno> aux = new FilaObj<>(60);
 
-    // Todos os dias do mês as 21:30:00 será enviado a mensagem, a não ser que pague o boleto!
+    /* Todos os dias a cada 10 segundos será enviado a mensagem cobrando o pagamento do boleto,
+    a não ser que pague o boleto seja pago e o usuário tirado da filaPagementosBoleto*/
     @Scheduled(fixedRate = 10000, initialDelay = 3000)
     public void cobrarPagamentoBoleto(){
-        if (!filaEmicaoBoleto.isEmpty()){
-            for (int i = 0; i < filaEmicaoBoleto.size(); i++) {
+        if (!filaPagamentosBoletos.isEmpty()){
+            for (int i = 0; i < filaPagamentosBoletos.size(); i++) {
 
-                Aluno alunoEnviadoMensagem = filaEmicaoBoleto.poll();
+                Aluno alunoEnviadoMensagem = filaPagamentosBoletos.poll();
                 aux.insert(alunoEnviadoMensagem);
 
                 alunoEnviadoMensagem.setCaixaDeEntrada("Você tem um boleto para pagar!");
                 System.out.println(alunoEnviadoMensagem.getCaixaDeEntrada());
 
                 // Volta para a fila
-                filaEmicaoBoleto.insert(alunoEnviadoMensagem);
+                filaPagamentosBoletos.insert(alunoEnviadoMensagem);
             }
         }
     }
 
-    public FilaObj<Aluno> getFilaEmicaoBoleto() {
-        return filaEmicaoBoleto;
+    public FilaObj<Aluno> getFilaPagamentosBoletos() {
+        return filaPagamentosBoletos;
     }
 
-    public void setFilaEmicaoBoleto(FilaObj<Aluno> filaEmicaoBoleto) {
-        this.filaEmicaoBoleto = filaEmicaoBoleto;
+    public void setFilaPagamentosBoletos(FilaObj<Aluno> filaPagamentosBoletos) {
+        this.filaPagamentosBoletos = filaPagamentosBoletos;
     }
 }
