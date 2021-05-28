@@ -10,7 +10,7 @@ public interface BoletoRepository extends JpaRepository<Boleto, Integer> {
     @Query("from Boleto where codigoBoleto = ?1")
     Boleto acharBoletoPorCodigo(String codigo);
 
-    // Acha o boleto pelo aluno e pela data
+    // Acha o boleto pelo aluno e pela data do boleto
     @Query("from Boleto where aluno.id = ?1 and ano = ?2 and mes = ?3")
     Boleto acharBoletoPorAlunoData(Integer id, int ano, int mes);
 }
