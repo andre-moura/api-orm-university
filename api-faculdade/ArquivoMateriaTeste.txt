@@ -4,3 +4,6 @@
 02DI      Gerson
 02PI      Brands
 030000000004
+00FACULDADE202127-05-2021 21:32:4200
+02PWEB    Yoshi                    
+030000000001
